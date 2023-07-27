@@ -5,8 +5,11 @@ from django.template.loader import get_template, render_to_string
 from django.core import mail
 from django.http.response import JsonResponse
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth.hashers import make_password
 
-from authentication.serializers import UserSerializer
+from authentication.models import User
+from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer
 
 
 @api_view(['POST', 'DELETE'])
@@ -41,3 +44,29 @@ def user_list(request):
             )
             return JsonResponse(user_serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_token(request):
+    user_data = JSONParser().parse(request)
+    token_serializer = VerifyTokenSerializer(data=user_data)
+
+    if token_serializer.is_valid():
+        try:
+            user = User.objects.get(verify_token=user_data['verify_token'])
+            user_serializer = UserSerializer(user)
+
+            user.password = make_password(user_data['password'])
+            user.email_verified = True
+            user.save()
+
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'user doesn`t exist'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(user_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+    return JsonResponse(token_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
