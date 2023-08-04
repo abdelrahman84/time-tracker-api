@@ -54,3 +54,54 @@ class AuthenticationViewSetTestCase(TestCase):
         self.assertIsNotNone(login_response.data['refresh'])
         self.assertIsNotNone(login_response.data['access'])
         self.assertIsNotNone(login_response.data['user'])
+
+    def test_check_email_before_login(self):
+        # test non existing user
+        non_existing_user = {
+            "email": "test@test.com"
+        }
+
+        api_response = self.client.post('/api/check_email_before_login',
+                                        json.dumps(non_existing_user), format="json", content_type="application/json")
+
+        self.assertEqual(api_response.status_code, status.HTTP_200_OK)
+        self.assertJSONEqual(
+            str(api_response.content, encoding='utf8'),
+            {'status': 1}
+        )
+
+        # check response for non verified user
+        non_verified_user = {
+            "email": "test@test.com"
+        }
+
+        create_user_response = self.client.post('/api/users', json.dumps({
+            "name": "abdu",
+            "email": "test@test.com",
+        }), format="json", content_type="application/json")
+
+        api_response = self.client.post('/api/check_email_before_login',
+                                        json.dumps(non_verified_user), format="json", content_type="application/json")
+
+        self.assertEqual(api_response.status_code, status.HTTP_200_OK)
+        self.assertJSONEqual(
+            str(api_response.content, encoding='utf8'),
+            {'status': 2}
+        )
+
+        # check response for verified user
+        verify_token = json.loads(
+            create_user_response.content.decode('utf-8'))['verify_token']
+
+        self.client.post('/api/verify_token', json.dumps({
+            "verify_token": verify_token,
+            "password": self.user_password}), format="json", content_type="application/json")
+
+        api_response = self.client.post('/api/check_email_before_login',
+                                        json.dumps(non_verified_user), format="json", content_type="application/json")
+
+        self.assertEqual(api_response.status_code, status.HTTP_200_OK)
+        self.assertJSONEqual(
+            str(api_response.content, encoding='utf8'),
+            {'status': 3}
+        )

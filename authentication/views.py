@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
 
 from authentication.models import User
-from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer
+from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailBeforeLoginSerializer
 
 
 @api_view(['POST', 'DELETE'])
@@ -66,6 +66,25 @@ def verify_token(request):
         return JsonResponse(user_serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
     return JsonResponse(token_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def check_email_before_login(request):
+
+    user_data = JSONParser().parse(request)
+    check_email_serializer = CheckEmailBeforeLoginSerializer(data=user_data)
+
+    if check_email_serializer.is_valid():
+        try:
+            user = User.objects.get(email=check_email_serializer.data['email'])
+            if user.email_verified == False:
+                return JsonResponse({'status': 2}, status=status.HTTP_200_OK)
+            return JsonResponse({'status': 3}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 1}, safe=False, status=status.HTTP_200_OK)
+    return JsonResponse(check_email_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):

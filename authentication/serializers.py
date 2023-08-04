@@ -35,6 +35,11 @@ class VerifyTokenSerializer(serializers.Serializer):
     ])
 
 
+class CheckEmailBeforeLoginSerializer(serializers.Serializer):
+
+    email = serializers.CharField(required=True)
+
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
