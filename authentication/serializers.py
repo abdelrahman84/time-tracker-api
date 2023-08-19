@@ -3,6 +3,7 @@ from django.utils.crypto import get_random_string
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import json as simplejson
 from django.core import validators
+from django.contrib.auth.hashers import make_password
 
 from authentication.models import User
 
@@ -10,6 +11,13 @@ from authentication.models import User
 class UserSerializer(serializers.ModelSerializer):
 
     token = serializers.CharField(max_length=255, read_only=True)
+
+    password = serializers.CharField(max_length=128, required=True, validators=[
+        validators.RegexValidator(
+            regex='^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,}$',
+            message='Please enter a strong password'
+        )
+    ])
 
     class Meta:
         model = User
@@ -20,6 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = super(UserSerializer, self).create(validated_data)
         user.verify_token = get_random_string(length=32)
+        user.password = make_password(validated_data["password"])
         user.save()
         return user
 
@@ -27,12 +36,6 @@ class UserSerializer(serializers.ModelSerializer):
 class VerifyTokenSerializer(serializers.Serializer):
 
     verify_token = serializers.CharField(required=True)
-    password = serializers.CharField(max_length=128, required=True, validators=[
-        validators.RegexValidator(
-            regex='^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,}$',
-            message='Please enter a strong password'
-        )
-    ])
 
 
 class CheckEmailBeforeLoginSerializer(serializers.Serializer):

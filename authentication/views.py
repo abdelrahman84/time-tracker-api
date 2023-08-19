@@ -6,7 +6,6 @@ from django.core import mail
 from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.contrib.auth.hashers import make_password
 
 from authentication.models import User
 from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailBeforeLoginSerializer
@@ -57,7 +56,6 @@ def verify_token(request):
             user = User.objects.get(verify_token=user_data['verify_token'])
             user_serializer = UserSerializer(user)
 
-            user.password = make_password(user_data['password'])
             user.email_verified = True
             user.save()
 

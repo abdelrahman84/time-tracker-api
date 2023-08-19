@@ -11,7 +11,8 @@ class AuthenticationViewSetTestCase(TestCase):
 
         user = {
             "name": "abdu",
-            "email": "abdelrahman.farag114@gmail.com"
+            "email": "abdelrahman.farag114@gmail.com",
+            "password": self.user_password
         }
 
         response = self.client.post(
@@ -22,8 +23,7 @@ class AuthenticationViewSetTestCase(TestCase):
             response.content.decode('utf-8'))['verify_token']
 
         verify_response = self.client.post('/api/verify_token', json.dumps({
-            "verify_token": verify_token,
-            "password": self.user_password}), format="json", content_type="application/json")
+            "verify_token": verify_token}), format="json", content_type="application/json")
 
         return {'verify_response': verify_response, 'user': user}
 
@@ -32,6 +32,7 @@ class AuthenticationViewSetTestCase(TestCase):
         response = self.client.post('/api/users', json.dumps({
             "name": "abdu",
             "email": "abdelrahman.farag91@gmail.com",
+            "password": self.user_password
         }), format="json", content_type="application/json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -78,6 +79,7 @@ class AuthenticationViewSetTestCase(TestCase):
         create_user_response = self.client.post('/api/users', json.dumps({
             "name": "abdu",
             "email": "test@test.com",
+            "password": self.user_password
         }), format="json", content_type="application/json")
 
         api_response = self.client.post('/api/check_email_before_login',
