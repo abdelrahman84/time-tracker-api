@@ -2,6 +2,8 @@ import json
 from django.test import TestCase
 from rest_framework import status
 
+from authentication.models import User
+
 
 class AuthenticationViewSetTestCase(TestCase):
 
@@ -15,12 +17,12 @@ class AuthenticationViewSetTestCase(TestCase):
             "password": self.user_password
         }
 
-        response = self.client.post(
+        self.client.post(
             '/api/users', json.dumps(user), format="json", content_type="application/json"
         )
 
-        verify_token = json.loads(
-            response.content.decode('utf-8'))['verify_token']
+        userObject = User.objects.get(email="abdelrahman.farag114@gmail.com")
+        verify_token = userObject.verify_token
 
         verify_response = self.client.post('/api/verify_token', json.dumps({
             "verify_token": verify_token}), format="json", content_type="application/json")
@@ -92,8 +94,8 @@ class AuthenticationViewSetTestCase(TestCase):
         )
 
         # check response for verified user
-        verify_token = json.loads(
-            create_user_response.content.decode('utf-8'))['verify_token']
+        userObject = User.objects.get(email="test@test.com")
+        verify_token = userObject.verify_token
 
         self.client.post('/api/verify_token', json.dumps({
             "verify_token": verify_token,

@@ -25,6 +25,13 @@ class UserSerializer(serializers.ModelSerializer):
                   'verify_token', 'password', 'token', 'created_at')
         extra_kwargs = {'password': {'write_only': True}}
 
+    def to_representation(self, instance):
+        representation = super(
+            UserSerializer, self).to_representation(instance)
+        representation['password'] = ''
+        representation['verify_token'] = ''
+        return representation
+
     def create(self, validated_data):
         user = super(UserSerializer, self).create(validated_data)
         user.verify_token = get_random_string(length=32)
