@@ -6,6 +6,7 @@ from django.core import mail
 from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth import authenticate, login
 
 from authentication.models import User
 from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailBeforeLoginSerializer
@@ -41,6 +42,10 @@ def user_list(request):
                 html_message=verify_email_template,
                 fail_silently=False
             )
+
+            new_user = authenticate(
+                email=user_data['email'], password=user_data['password'])
+            login(request, new_user)
             return JsonResponse(user_serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -38,6 +38,8 @@ class AuthenticationViewSetTestCase(TestCase):
         }), format="json", content_type="application/json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIsNotNone(response.json()['access_tokens']['refresh'])
+        self.assertIsNotNone(response.json()['access_tokens']['access'])
 
     # test login user
 

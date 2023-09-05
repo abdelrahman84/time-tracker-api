@@ -4,6 +4,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import json as simplejson
 from django.core import validators
 from django.contrib.auth.hashers import make_password
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from authentication.models import User
 
@@ -19,11 +20,25 @@ class UserSerializer(serializers.ModelSerializer):
         )
     ])
 
+    access_tokens = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('id', 'name', 'email', 'email_verified',
-                  'verify_token', 'password', 'token', 'created_at')
+                  'verify_token', 'password', 'token', 'created_at', 'access_tokens')
         extra_kwargs = {'password': {'write_only': True}}
+
+    def get_access_tokens(self, user):
+        tokens = RefreshToken.for_user(user)
+        refresh = str(tokens)
+        access = str(tokens.access_token)
+
+        data = {
+            "refresh": refresh,
+            "access": access
+        }
+
+        return data
 
     def to_representation(self, instance):
         representation = super(
