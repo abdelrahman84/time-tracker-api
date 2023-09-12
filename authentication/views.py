@@ -7,6 +7,7 @@ from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate, login
+import os.path
 
 from authentication.models import User
 from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailBeforeLoginSerializer
@@ -27,8 +28,11 @@ def user_list(request):
                 {'name': user_serializer.data['name'], 'verify_token': user_serializer.data['verify_token']})
 
             subject = 'Email verification'
+            user = User.objects.get(email=user_serializer.data['email'])
+
+            client_side_host = os.getenv("CLIENT_SIDE_HOST")
             plain_message = render_to_string('verification_email.html', {
-                'name': user_serializer.data['name'], 'verify_token': user_serializer.data['verify_token']
+                'name': user_serializer.data['name'], 'verify_token': user.verify_token, 'client_side_host': client_side_host
             })
 
             from_email = 'info@timeTracker.com'
