@@ -111,3 +111,51 @@ class AuthenticationViewSetTestCase(TestCase):
             str(api_response.content, encoding='utf8'),
             {'status': 3}
         )
+
+    def test_resend_verification_email(self):
+
+        user = {
+            "name": "abdu",
+            "email": "abdelrahman.farag114@gmail.com",
+            "password": self.user_password
+        }
+
+        # create user
+        self.client.post(
+            '/api/users', json.dumps(user), format="json", content_type="application/json"
+        )
+
+        # request resend of verification email
+        verify_response = self.client.post('/api/resend_verification_email', json.dumps({
+            "email": "abdelrahman.farag114@gmail.com"}), format="json", content_type="application/json")
+
+        self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
+        self.assertJSONEqual(
+            str(verify_response.content, encoding='utf8'),
+            {'status': 2}
+        )
+
+        # request resend verification email for already verified user
+        userObject = User.objects.get(email="abdelrahman.farag114@gmail.com")
+        verify_token = userObject.verify_token
+        self.client.post('/api/verify_token', json.dumps({
+            "verify_token": verify_token}), format="json", content_type="application/json")
+
+        verify_response = self.client.post('/api/resend_verification_email', json.dumps({
+            "email": "abdelrahman.farag114@gmail.com"}), format="json", content_type="application/json")
+
+        self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
+        self.assertJSONEqual(
+            str(verify_response.content, encoding='utf8'),
+            {'status': 1}
+        )
+
+        # request send verification email for non existing user
+        verify_response = self.client.post('/api/resend_verification_email', json.dumps({
+            "email": "non_exist@gmail.com"}), format="json", content_type="application/json")
+
+        self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
+        self.assertJSONEqual(
+            str(verify_response.content, encoding='utf8'),
+            {'status': 3}
+        )

@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login
 import os.path
 
 from authentication.models import User
-from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailBeforeLoginSerializer
+from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailSerializer
 
 
 @api_view(['POST', 'DELETE'])
@@ -66,11 +66,12 @@ def verify_token(request):
             user_serializer = UserSerializer(user)
 
             user.email_verified = True
+            user.verify_token = ''
             user.save()
 
         except User.DoesNotExist:
             return JsonResponse({'error': 'user doesn`t exist'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse(user_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(user_serializer.data, status=status.HTTP_200_OK)
 
     return JsonResponse(token_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -80,7 +81,7 @@ def verify_token(request):
 def check_email_before_login(request):
 
     user_data = JSONParser().parse(request)
-    check_email_serializer = CheckEmailBeforeLoginSerializer(data=user_data)
+    check_email_serializer = CheckEmailSerializer(data=user_data)
 
     if check_email_serializer.is_valid():
         try:
@@ -91,6 +92,48 @@ def check_email_before_login(request):
 
         except User.DoesNotExist:
             return JsonResponse({'status': 1}, safe=False, status=status.HTTP_200_OK)
+    return JsonResponse(check_email_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def resend_verification_email(request):
+
+    user_data = JSONParser().parse(request)
+    check_email_serializer = CheckEmailSerializer(data=user_data)
+
+    if check_email_serializer.is_valid():
+        try:
+            user = User.objects.get(email=check_email_serializer.data['email'])
+            if user.email_verified == True:
+                return JsonResponse({'status': 1}, status=status.HTTP_200_OK)
+
+            verify_email_template = get_template('verification_email.html').render(
+                {'name': user.name, 'verify_token': user.verify_token})
+
+            subject = 'Email verification'
+
+            client_side_host = os.getenv("CLIENT_SIDE_HOST")
+            plain_message = render_to_string('verification_email.html', {
+                'name': user.email, 'verify_token': user.verify_token, 'client_side_host': client_side_host
+            })
+
+            from_email = 'info@timeTracker.com'
+            to = user.email
+
+            mail.send_mail(
+                subject,
+                plain_message,
+                from_email,
+                [to],
+                html_message=verify_email_template,
+                fail_silently=False
+            )
+
+            return JsonResponse({'status': 2}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 3}, safe=False, status=status.HTTP_200_OK)
     return JsonResponse(check_email_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

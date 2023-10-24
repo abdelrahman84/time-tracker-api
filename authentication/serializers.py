@@ -60,7 +60,7 @@ class VerifyTokenSerializer(serializers.Serializer):
     verify_token = serializers.CharField(required=True)
 
 
-class CheckEmailBeforeLoginSerializer(serializers.Serializer):
+class CheckEmailSerializer(serializers.Serializer):
 
     email = serializers.CharField(required=True)
 
