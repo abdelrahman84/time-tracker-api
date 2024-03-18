@@ -24,11 +24,11 @@ def user_list(request):
         if user_serializer.is_valid():
             user_serializer.save()
 
-            verify_email_template = get_template('verification_email.html').render(
-                {'name': user_serializer.data['name'], 'verify_token': user_serializer.data['verify_token']})
-
             subject = 'Email verification'
             user = User.objects.get(email=user_serializer.data['email'])
+
+            verify_email_template = get_template('verification_email.html').render(
+                {'name': user_serializer.data['name'], 'verify_token': user.verify_token})
 
             client_side_host = os.getenv("CLIENT_SIDE_HOST")
             plain_message = render_to_string('verification_email.html', {
