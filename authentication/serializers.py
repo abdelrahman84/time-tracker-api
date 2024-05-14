@@ -69,18 +69,15 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
 
-        if self.user.email_verified:
-            refresh = self.get_token(self.user)
+        refresh = self.get_token(self.user)
 
-            data['refresh'] = str(refresh)
-            data['access'] = str(refresh.access_token)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
 
-            user = UserSerializer(self.user)
+        user = UserSerializer(self.user)
 
-            data['user'] = simplejson.dumps(user.data)
-            return data
-
-        raise serializers.ValidationError('Please verify your email first')
+        data['user'] = simplejson.dumps(user.data)
+        return data
 
 
 class VerifyLoginSerializer(serializers.Serializer):
