@@ -7,6 +7,7 @@ from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate, login
+from django.utils.crypto import get_random_string
 import os.path
 
 from authentication.models import User
@@ -118,7 +119,7 @@ def resend_verification_email(request):
                 'name': user.email, 'verify_token': user.verify_token, 'client_side_host': client_side_host
             })
 
-            from_email = 'info@timeTracker.com'
+            from_email = os.getenv("FROM_EMAIL_ADDRESS")
             to = user.email
 
             mail.send_mail(
@@ -136,6 +137,50 @@ def resend_verification_email(request):
             return JsonResponse({'status': 3}, safe=False, status=status.HTTP_200_OK)
     return JsonResponse(check_email_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def forgot_password(request):
+    
+    user_data = JSONParser().parse(request)
+    check_email_serializer = CheckEmailSerializer(data=user_data)
+    
+    if check_email_serializer.is_valid():
+        try: 
+            user = User.objects.get(email=check_email_serializer.data['email'])
+            
+            if user.verify_token == '':
+                user.verify_token = get_random_string(length=32)
+                user.save()
+            
+            forgot_password_template = get_template('forgot_password_email.html').render(
+                {'name': user.name, 'reset_token': user.verify_token})
+            
+            subject = 'Forgot Password'
+            to = user.email
+            
+            client_side_host = os.getenv("CLIENT_SIDE_HOST")
+            plain_message = render_to_string('forgot_password_email.html', {
+                'name': user.name, 'reset_token': user.verify_token, 'client_side_host': client_side_host
+            })
+            
+            from_email = os.getenv("FROM_EMAIL_ADDRESS")
+            to = user.email
+            
+            mail.send_mail(
+                subject,
+                plain_message,
+                from_email,
+                [to],
+                html_message=forgot_password_template,
+                fail_silently=False
+            )
+            
+            return JsonResponse({'status': 1}, status=status.HTTP_200_OK)
+    
+        except User.DoesNotExist:
+            return JsonResponse({'status':2}, safe=False, status=status.HTTP_200_OK)
+    return JsonResponse(check_email_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer

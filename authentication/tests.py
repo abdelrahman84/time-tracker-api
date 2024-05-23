@@ -8,12 +8,13 @@ from authentication.models import User
 class AuthenticationViewSetTestCase(TestCase):
 
     user_password = "1234bB1$"
+    user_email = "abdelrahman.farag114@gmail.com"
 
     def verify_email_helper(self):
 
         user = {
             "name": "abdu",
-            "email": "abdelrahman.farag114@gmail.com",
+            "email": self.user_email,
             "password": self.user_password
         }
 
@@ -21,7 +22,7 @@ class AuthenticationViewSetTestCase(TestCase):
             '/api/users', json.dumps(user), format="json", content_type="application/json"
         )
 
-        userObject = User.objects.get(email="abdelrahman.farag114@gmail.com")
+        userObject = User.objects.get(email=self.user_email)
         verify_token = userObject.verify_token
 
         verify_response = self.client.post('/api/verify_token', json.dumps({
@@ -116,7 +117,7 @@ class AuthenticationViewSetTestCase(TestCase):
 
         user = {
             "name": "abdu",
-            "email": "abdelrahman.farag114@gmail.com",
+            "email": self.user_email,
             "password": self.user_password
         }
 
@@ -127,7 +128,7 @@ class AuthenticationViewSetTestCase(TestCase):
 
         # request resend of verification email
         verify_response = self.client.post('/api/resend_verification_email', json.dumps({
-            "email": "abdelrahman.farag114@gmail.com"}), format="json", content_type="application/json")
+            "email": self.user_email}), format="json", content_type="application/json")
 
         self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
         self.assertJSONEqual(
@@ -136,13 +137,13 @@ class AuthenticationViewSetTestCase(TestCase):
         )
 
         # request resend verification email for already verified user
-        userObject = User.objects.get(email="abdelrahman.farag114@gmail.com")
+        userObject = User.objects.get(email=self.user_email)
         verify_token = userObject.verify_token
         self.client.post('/api/verify_token', json.dumps({
             "verify_token": verify_token}), format="json", content_type="application/json")
 
         verify_response = self.client.post('/api/resend_verification_email', json.dumps({
-            "email": "abdelrahman.farag114@gmail.com"}), format="json", content_type="application/json")
+            "email": self.user_email}), format="json", content_type="application/json")
 
         self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
         self.assertJSONEqual(
@@ -159,3 +160,23 @@ class AuthenticationViewSetTestCase(TestCase):
             str(verify_response.content, encoding='utf8'),
             {'status': 3}
         )
+        
+    def test_forgot_password(self):
+        
+        user = {
+            "name": "abdu",
+            "email": self.user_email,
+            "password": self.user_password
+        }
+        
+        # create user
+        self.client.post(
+            '/api/users', json.dumps(user), format="json", content_type="application/json"
+        )
+        
+        # request forgot password
+        verify_response = self.client.post('/api/forgot_password', json.dumps({
+            "email": self.user_email}), format="json", content_type="application/json")
+        
+        self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
+        
