@@ -84,3 +84,18 @@ class VerifyLoginSerializer(serializers.Serializer):
 
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True)
+    
+class ResetPasswordSerializer(serializers.Serializer):
+    reset_token = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, validators=[
+        validators.RegexValidator(
+            regex='^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,}$',
+            message='Please enter a strong password'
+        )
+    ])
+    confirm_password = serializers.CharField(required=True)
+    
+    def validate(self, data):
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match")
+        return data

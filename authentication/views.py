@@ -11,7 +11,7 @@ from django.utils.crypto import get_random_string
 import os.path
 
 from authentication.models import User
-from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailSerializer
+from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailSerializer, ResetPasswordSerializer
 
 
 @api_view(['POST', 'DELETE'])
@@ -181,6 +181,28 @@ def forgot_password(request):
         except User.DoesNotExist:
             return JsonResponse({'status':2}, safe=False, status=status.HTTP_200_OK)
     return JsonResponse(check_email_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def reset_password(request):
+    
+    user_data = JSONParser().parse(request)
+    reset_password_serializer = ResetPasswordSerializer(data=user_data)
+    
+    if reset_password_serializer.is_valid():
+        try:
+            user = User.objects.get(verify_token=reset_password_serializer.data['reset_token'])
+            user.password = reset_password_serializer.data['password']
+            user.verify_token = ''
+            user.save()
+            
+            return JsonResponse({'status': 1}, status=status.HTTP_200_OK)
+        
+        except User.DoesNotExist:
+            return JsonResponse({'status': 2}, safe=False, status=status.HTTP_200_OK)
+        
+    return JsonResponse(reset_password_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer

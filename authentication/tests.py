@@ -136,7 +136,6 @@ class AuthenticationViewSetTestCase(TestCase):
             {'status': 2}
         )
 
-        # request resend verification email for already verified user
         userObject = User.objects.get(email=self.user_email)
         verify_token = userObject.verify_token
         self.client.post('/api/verify_token', json.dumps({
@@ -179,4 +178,54 @@ class AuthenticationViewSetTestCase(TestCase):
             "email": self.user_email}), format="json", content_type="application/json")
         
         self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
+        
+    def test_reset_password_with_wrong_input(self):
+        user = {
+            "name": "abdu",
+            "email": self.user_email,
+            "password": self.user_password
+        }
+        
+        # create user
+        self.client.post(
+            '/api/users', json.dumps(user), format="json", content_type="application/json"
+        )
+        
+        # request forgot password
+        self.client.post('/api/forgot_password', json.dumps({
+            "email": self.user_email}), format="json", content_type="application/json")
+        
+        user = User.objects.get(email=self.user_email)
+        
+        # request reset password
+        reset_password_response = self.client.post('/api/reset_password', json.dumps({
+            "reset_token": user.verify_token,
+            "password": self.user_password, "confirm_password": "non_matching_password"}), format="json", content_type="application/json")
+        
+        self.assertEqual(reset_password_response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+    def test_reset_password_with_correct_input(self):
+        user = {
+            "name": "abdu",
+            "email": self.user_email,
+            "password": self.user_password
+        }
+        
+        # create user
+        self.client.post(
+            '/api/users', json.dumps(user), format="json", content_type="application/json"
+        )
+        
+        # request forgot password
+        self.client.post('/api/forgot_password', json.dumps({
+            "email": self.user_email}), format="json", content_type="application/json")
+        
+        user = User.objects.get(email=self.user_email)
+        
+        # request reset password
+        reset_password_response = self.client.post('/api/reset_password', json.dumps({
+            "reset_token": user.verify_token,
+            "password": self.user_password, "confirm_password": self.user_password}), format="json", content_type="application/json")
+        
+        self.assertEqual(reset_password_response.status_code, status.HTTP_200_OK)
         
