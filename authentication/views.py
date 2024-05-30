@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate, login
 from django.utils.crypto import get_random_string
 import os.path
+from django.contrib.auth.hashers import make_password
 
 from authentication.models import User
 from authentication.serializers import UserSerializer, MyTokenObtainPairSerializer, VerifyTokenSerializer, CheckEmailSerializer, ResetPasswordSerializer
@@ -193,7 +194,7 @@ def reset_password(request):
     if reset_password_serializer.is_valid():
         try:
             user = User.objects.get(verify_token=reset_password_serializer.data['reset_token'])
-            user.password = reset_password_serializer.data['password']
+            user.password = make_password(reset_password_serializer.data['password'])
             user.verify_token = ''
             user.save()
             
