@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     password = models.CharField(max_length=128, blank=True, null=False, validators=[
         validators.RegexValidator(
-            regex='^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,}$',
+            regex=r'^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,}$',
             message='Please enter a strong password'
         )
     ])

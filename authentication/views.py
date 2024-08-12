@@ -88,7 +88,7 @@ def check_email_before_login(request):
     if check_email_serializer.is_valid():
         try:
             user = User.objects.get(email=check_email_serializer.data['email'])
-            if user.email_verified == False:
+            if user.email_verified is False:
                 return JsonResponse({'status': 2}, status=status.HTTP_200_OK)
             return JsonResponse({'status': 3}, status=status.HTTP_200_OK)
 
@@ -107,7 +107,7 @@ def resend_verification_email(request):
     if check_email_serializer.is_valid():
         try:
             user = User.objects.get(email=check_email_serializer.data['email'])
-            if user.email_verified == True:
+            if user.email_verified is True:
                 return JsonResponse({'status': 1}, status=status.HTTP_200_OK)
 
             verify_email_template = get_template('verification_email.html').render(
@@ -142,32 +142,24 @@ def resend_verification_email(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def forgot_password(request):
-    
     user_data = JSONParser().parse(request)
     check_email_serializer = CheckEmailSerializer(data=user_data)
-    
     if check_email_serializer.is_valid():
-        try: 
+        try:
             user = User.objects.get(email=check_email_serializer.data['email'])
-            
             if user.verify_token == '':
                 user.verify_token = get_random_string(length=32)
                 user.save()
-            
             forgot_password_template = get_template('forgot_password_email.html').render(
                 {'name': user.name, 'reset_token': user.verify_token})
-            
             subject = 'Forgot Password'
             to = user.email
-            
             client_side_host = os.getenv("CLIENT_SIDE_HOST")
             plain_message = render_to_string('forgot_password_email.html', {
                 'name': user.name, 'reset_token': user.verify_token, 'client_side_host': client_side_host
             })
-            
             from_email = os.getenv("FROM_EMAIL_ADDRESS")
             to = user.email
-            
             mail.send_mail(
                 subject,
                 plain_message,
@@ -176,34 +168,28 @@ def forgot_password(request):
                 html_message=forgot_password_template,
                 fail_silently=False
             )
-            
             return JsonResponse({'status': 1}, status=status.HTTP_200_OK)
-    
         except User.DoesNotExist:
-            return JsonResponse({'status':2}, safe=False, status=status.HTTP_200_OK)
+            return JsonResponse({'status': 2}, safe=False, status=status.HTTP_200_OK)
     return JsonResponse(check_email_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def reset_password(request):
-    
     user_data = JSONParser().parse(request)
     reset_password_serializer = ResetPasswordSerializer(data=user_data)
-    
     if reset_password_serializer.is_valid():
         try:
             user = User.objects.get(verify_token=reset_password_serializer.data['reset_token'])
             user.password = make_password(reset_password_serializer.data['password'])
             user.verify_token = ''
             user.save()
-            
             return JsonResponse({'status': 1}, status=status.HTTP_200_OK)
-        
         except User.DoesNotExist:
             return JsonResponse({'status': 2}, safe=False, status=status.HTTP_200_OK)
-        
     return JsonResponse(reset_password_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
