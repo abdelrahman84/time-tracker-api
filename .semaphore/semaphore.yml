@@ -16,3 +16,25 @@ blocks:
             - cache restore
             - pip install --cache-dir .pip_cache -r requirements.txt
             - cache store
+  - name: Test
+    task:
+      prologue:
+        commands:
+          - sem-version python 3.11
+          - checkout
+          - cache restore
+          - pip install --cache-dir .pip_cache -r requirements.txt
+      jobs:
+        - name: Unit Test
+          commands:
+            - cd time-tracker-api
+            - python manage.py makemigrations
+            - python manage.py migrate
+            - python manage.py test
+        - name: CheckList
+          commands:
+            - cd time-tracker-api
+            - python manage.py check --deploy
+        - name: flake8
+          commands:
+            - flake8 tracker-api/
