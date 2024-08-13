@@ -15,6 +15,7 @@ blocks:
             - mkdir .pip_cache
             - cache restore
             - pip install --cache-dir .pip_cache -r requirements.txt
+            - pip install django-cors-headers
             - cache store
   - name: Test
     task:
@@ -24,6 +25,7 @@ blocks:
           - checkout
           - cache restore
           - pip install --cache-dir .pip_cache -r requirements.txt
+          - pip install django-cors-headers
       jobs:
         - name: Unit Test
           commands:
