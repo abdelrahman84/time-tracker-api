@@ -27,7 +27,6 @@ blocks:
       jobs:
         - name: Unit Test
           commands:
-            - cd time-tracker-api
             - python manage.py makemigrations
             - python manage.py migrate
             - python manage.py test
