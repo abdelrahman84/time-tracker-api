@@ -32,8 +32,7 @@ blocks:
             - python manage.py test
         - name: CheckList
           commands:
-            - cd time-tracker-api
             - python manage.py check --deploy
         - name: flake8
           commands:
-            - flake8 tracker-api/
+            - flake8
