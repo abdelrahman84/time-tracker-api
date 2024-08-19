@@ -30,7 +30,7 @@ blocks:
         - name: Unit Test
           commands:
             - sudo service mysql start
-            - mysql -e 'CREATE DATABASE time_tracker;'
+            - mysql -p --execute="CREATE DATABASE IF NOT EXISTS time_tracker;grant all on time_tracker.* to root@localhost identified by 'time_tracker';"
             - python manage.py makemigrations
             - python manage.py migrate
             - python manage.py test
