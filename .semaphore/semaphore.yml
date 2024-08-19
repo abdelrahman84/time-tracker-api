@@ -29,8 +29,8 @@ blocks:
       jobs:
         - name: Unit Test
           commands:
-            - mysql -e 'CREATE DATABASE time_tracker;'
             - sudo service mysql start
+            - mysql -e 'CREATE DATABASE time_tracker;'
             - python manage.py makemigrations
             - python manage.py migrate
             - python manage.py test
