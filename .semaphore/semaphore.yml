@@ -15,6 +15,8 @@ blocks:
             - mkdir .pip_cache
             - cache restore
             - pip install --cache-dir .pip_cache -r requirements.txt
+            - pip install django-cors-headers
+            - pip install mysqlclient
             - cache store
   - name: Test
     task:
@@ -35,4 +37,5 @@ blocks:
             - python manage.py check --deploy
         - name: flake8
           commands:
+            - pip install flake8
             - flake8
