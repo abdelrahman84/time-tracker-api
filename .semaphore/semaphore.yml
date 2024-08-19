@@ -29,7 +29,7 @@ blocks:
       jobs:
         - name: Unit Test
           commands:
-            - mysql -p --execute="CREATE DATABASE IF NOT EXISTS time_tracker;grant all on time_tracker.* to root@localhost identified by 'time_tracker';"
+            - mysql -u root --execute="CREATE DATABASE IF NOT EXISTS time_tracker;grant all on time_tracker.* to root@localhost;"
             - python manage.py makemigrations
             - python manage.py migrate
             - python manage.py test
