@@ -11,6 +11,7 @@ blocks:
         - name: Pip
           commands:
             - sem-version python 3.11
+            - pip install django==4.1
             # install linux dependencies
             - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev
             - checkout
@@ -31,7 +32,6 @@ blocks:
           - cache restore
           - pip install --cache-dir .pip_cache -r requirements.txt
           - pip install django-cors-headers
-          - pip install mysqlclient
       jobs:
         - name: Unit Test
           commands:
