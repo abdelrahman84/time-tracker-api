@@ -21,6 +21,9 @@ blocks:
       prologue:
         commands:
           - sem-service start mysql
+          # install mysql client
+          - sudo apt-get update && sudo apt-get install -y -qq mysql-client
+          - mysql --host=0.0.0.0 -uroot -e "CREATE DATABASE IF NOT EXISTS time_tracker;"
           - sem-version python 3.11
           - checkout
           - cache restore
@@ -30,7 +33,6 @@ blocks:
       jobs:
         - name: Unit Test
           commands:
-            - mysql -u root --execute="CREATE DATABASE IF NOT EXISTS time_tracker;grant all on time_tracker.* to root@localhost;"
             - python manage.py makemigrations
             - python manage.py migrate
             - python manage.py test
