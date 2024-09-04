@@ -14,7 +14,7 @@ blocks:
             - pip install django==4.1
             - pip install pymysql
             # install linux dependencies
-            - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev && sudo pip install PyMySQL
+            - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev
             - checkout
             - mkdir .pip_cache
             - cache restore
@@ -26,7 +26,7 @@ blocks:
         commands:
           - sem-service start mysql
           # install mysql client
-          - sudo apt-get update && sudo apt-get install -y -qq mysql-client
+          - sudo apt-get update && sudo apt-get install -y -qq mysql-client && sudo pip install PyMySQL
           - mysql --host=0.0.0.0 -uroot -e "CREATE DATABASE IF NOT EXISTS time_tracker;"
           - sem-version python 3.11
           - checkout
