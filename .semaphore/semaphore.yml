@@ -26,7 +26,7 @@ blocks:
         commands:
           - sem-service start mysql
           # install mysql client
-          - sudo apt-get update && sudo apt-get install -y -qq mysql-client && sudo pip install PyMySQL
+          - sudo apt-get update && sudo apt-get install -y -qq mysql-client && sudo apt-get install python3-pymysql
           - mysql --host=0.0.0.0 -uroot -e "CREATE DATABASE IF NOT EXISTS time_tracker;"
           - sem-version python 3.11
           - checkout
