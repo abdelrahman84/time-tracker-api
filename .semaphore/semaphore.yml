@@ -20,6 +20,7 @@ blocks:
     task:
       prologue:
         commands:
+          - sem-service start mysql
           - sem-version python 3.11
           - checkout
           - cache restore
