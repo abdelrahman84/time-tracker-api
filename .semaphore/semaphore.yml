@@ -11,7 +11,6 @@ blocks:
         - name: Pip
           commands:
             - sem-version python 3.11
-            - pip install mysqlclient
             - pip install django==4.1
             # install linux dependencies
             - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev
@@ -24,6 +23,8 @@ blocks:
     task:
       prologue:
         commands:
+          # install mysql
+          - pip install mysqlclient
           - sem-service start mysql
           # install mysql client
           - sudo apt-get update && sudo apt-get install -y -qq mysql-client
