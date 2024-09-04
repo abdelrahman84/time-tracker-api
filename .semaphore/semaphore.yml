@@ -12,7 +12,7 @@ blocks:
           commands:
             - sem-version python 3.11
             - pip install django==4.1
-            - pip install pymysql
+            - pip install mysqlclient
             # install linux dependencies
             - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev && sudo apt-get install mysql-client
             - checkout
