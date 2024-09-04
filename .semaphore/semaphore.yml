@@ -14,7 +14,7 @@ blocks:
             - pip install django==4.1
             - pip install pymysql
             # install linux dependencies
-            - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev && sudo apt-get install python3-pymysql
+            - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev && sudo pip install PyMySQL
             - checkout
             - mkdir .pip_cache
             - cache restore
