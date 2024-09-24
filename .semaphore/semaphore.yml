@@ -4,6 +4,13 @@ agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu2004
+
+global_job_config:
+  prologue:
+    commands:
+      - sem-version python 3.11
+      - pip install django==4.1
+      - pip install mysqlclient
 blocks:
   - name: Build
     task:
@@ -13,14 +20,11 @@ blocks:
       jobs:
         - name: pip
           commands:
-            - sem-version python 3.11
-            - pip install django==4.1
-            - pip install mysqlclient
             - checkout
             - mkdir .pip_cache
             - cache restore
             - pip install --cache-dir .pip_cache -r requirements.txt
-            - cache store 
+            - cache store
   - name: Test
     task:
       prologue:
