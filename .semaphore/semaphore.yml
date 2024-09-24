@@ -7,8 +7,11 @@ agent:
 blocks:
   - name: Build
     task:
+      prologue:
+        commands:
+          - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev && sudo apt-get install mysql-client
       jobs:
-        - name: Pip
+        - name: pip
           commands:
             - sem-version python 3.11
             - pip install django==4.1
@@ -17,14 +20,13 @@ blocks:
             - mkdir .pip_cache
             - cache restore
             - pip install --cache-dir .pip_cache -r requirements.txt
-            - cache store
+            - cache store 
   - name: Test
     task:
       prologue:
         commands:
           - sem-service start mysql
           # install mysql client
-          - sudo apt-get update && sudo apt-get install -y python3-dev && sudo apt-get install default-libmysqlclient-dev && sudo apt-get install mysql-client
           - mysql --host=0.0.0.0 -uroot -e "CREATE DATABASE IF NOT EXISTS time_tracker;"
           - sem-version python 3.11
           - checkout
