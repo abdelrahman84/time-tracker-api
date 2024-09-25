@@ -8,7 +8,7 @@ agent:
 global_job_config:
   prologue:
     commands:
-      - sem-version python 3.8
+      - sem-version python 3.11
       - pip install mysqlclient
 blocks:
   - name: Build
