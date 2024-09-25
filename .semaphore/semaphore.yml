@@ -10,7 +10,6 @@ global_job_config:
     commands:
       - sem-version python 3.11
       - pip install mysqlclient
-      - pip install django==3.2.19
 blocks:
   - name: Build
     task:
@@ -29,7 +28,7 @@ blocks:
     task:
       prologue:
         commands:
-          - sem-service start mysql
+          - sem-service start mysql 8.0.11
           # install mysql client
           - mysql --host=0.0.0.0 -uroot -e "CREATE DATABASE IF NOT EXISTS time_tracker;"
           - checkout
