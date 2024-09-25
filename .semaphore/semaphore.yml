@@ -10,6 +10,7 @@ global_job_config:
     commands:
       - sem-version python 3.11
       - pip install mysqlclient
+      - pip install django=3.2.19
 blocks:
   - name: Build
     task:
