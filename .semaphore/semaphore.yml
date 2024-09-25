@@ -30,7 +30,9 @@ blocks:
         commands:
           - sem-service start mysql 8.0.11
           # install mysql client
+          - sudo apt-get install -y -qq mysql-client
           - mysql --host=0.0.0.0 -uroot -e "CREATE DATABASE IF NOT EXISTS time_tracker;"
+          - sem-service status mysql 8.0.11
           - checkout
           - cache restore
           - pip install --cache-dir .pip_cache -r requirements.txt
