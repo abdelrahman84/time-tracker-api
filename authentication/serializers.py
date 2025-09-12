@@ -90,7 +90,8 @@ class ResetPasswordSerializer(serializers.Serializer):
     reset_token = serializers.CharField(required=True)
     password = serializers.CharField(required=True, validators=[
         validators.RegexValidator(
-            regex=r'^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$])[\w\d@#$]{8,}$',
+            # Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character
+            regex=r'^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^A-Za-z0-9])(.{8,})$',
             message='Please enter a strong password'
         )
     ])

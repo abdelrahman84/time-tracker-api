@@ -1,5 +1,5 @@
 # Stage 1: Base build stage
-FROM python:3.13-slim AS builder
+FROM python:3.13 AS builder
  
 # Create the app directory
 RUN mkdir /app
@@ -12,20 +12,19 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
 
 RUN apt-get update \
-    && apt-get install -y build-essential \
-    # and install pkg-config without sudo
-   && apt-get install -y pkg-config \
-   # install python3-dev default-libmysqlclient-dev without sudo
-   && apt-get install -y python3-dev default-libmysqlclient-dev
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        pkg-config \
+        python3-dev \
+        default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
  
 # Upgrade pip and install dependencies
-RUN pip install --upgrade setuptools  && pip install pymysql
- 
-# Copy the requirements file first (better caching)
 COPY requirements.txt /app/
- 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt && pip install django-cors-headers
+RUN pip install --upgrade setuptools \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir pymysql django-cors-headers
  
 # Stage 2: Production stage
 FROM python:3.13-slim

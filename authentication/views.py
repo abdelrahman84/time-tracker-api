@@ -29,10 +29,10 @@ def user_list(request):
             subject = 'Email verification'
             user = User.objects.get(email=user_serializer.data['email'])
 
-            verify_email_template = get_template('verification_email.html').render(
-                {'name': user_serializer.data['name'], 'verify_token': user.verify_token})
-
             client_side_host = os.getenv("CLIENT_SIDE_HOST")
+            verify_email_template = get_template('verification_email.html').render(
+                {'name': user_serializer.data['name'], 'verify_token': user.verify_token, 'client_side_host': client_side_host})
+
             plain_message = render_to_string('verification_email.html', {
                 'name': user_serializer.data['name'], 'verify_token': user.verify_token, 'client_side_host': client_side_host
             })
@@ -110,12 +110,12 @@ def resend_verification_email(request):
             if user.email_verified is True:
                 return JsonResponse({'status': 1}, status=status.HTTP_200_OK)
 
+            client_side_host = os.getenv("CLIENT_SIDE_HOST")
             verify_email_template = get_template('verification_email.html').render(
-                {'name': user.name, 'verify_token': user.verify_token})
+                {'name': user.name, 'verify_token': user.verify_token, 'client_side_host': client_side_host})
 
             subject = 'Email verification'
 
-            client_side_host = os.getenv("CLIENT_SIDE_HOST")
             plain_message = render_to_string('verification_email.html', {
                 'name': user.email, 'verify_token': user.verify_token, 'client_side_host': client_side_host
             })
@@ -150,11 +150,11 @@ def forgot_password(request):
             if user.verify_token == '':
                 user.verify_token = get_random_string(length=32)
                 user.save()
+            client_side_host = os.getenv("CLIENT_SIDE_HOST")
             forgot_password_template = get_template('forgot_password_email.html').render(
-                {'name': user.name, 'reset_token': user.verify_token})
+                {'name': user.name, 'reset_token': user.verify_token, 'client_side_host': client_side_host})
             subject = 'Forgot Password'
             to = user.email
-            client_side_host = os.getenv("CLIENT_SIDE_HOST")
             plain_message = render_to_string('forgot_password_email.html', {
                 'name': user.name, 'reset_token': user.verify_token, 'client_side_host': client_side_host
             })
