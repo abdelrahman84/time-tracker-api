@@ -80,7 +80,7 @@ def verify_token(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def check_email_before_login(request):
+def check_email(request):
 
     user_data = JSONParser().parse(request)
     check_email_serializer = CheckEmailSerializer(data=user_data)

@@ -61,13 +61,13 @@ class AuthenticationViewSetTestCase(TestCase):
         self.assertIsNotNone(login_response.data['access'])
         self.assertIsNotNone(login_response.data['user'])
 
-    def test_check_email_before_login(self):
+    def test_check_email(self):
         # test non existing user
         non_existing_user = {
             "email": "test@test.com"
         }
 
-        api_response = self.client.post('/api/check_email_before_login',
+        api_response = self.client.post('/api/check_email',
                                         json.dumps(non_existing_user), format="json", content_type="application/json")
 
         self.assertEqual(api_response.status_code, status.HTTP_200_OK)
@@ -87,7 +87,7 @@ class AuthenticationViewSetTestCase(TestCase):
             "password": self.user_password
         }), format="json", content_type="application/json")
 
-        api_response = self.client.post('/api/check_email_before_login',
+        api_response = self.client.post('/api/check_email',
                                         json.dumps(non_verified_user), format="json", content_type="application/json")
 
         self.assertEqual(api_response.status_code, status.HTTP_200_OK)
@@ -104,7 +104,7 @@ class AuthenticationViewSetTestCase(TestCase):
             "verify_token": verify_token,
             "password": self.user_password}), format="json", content_type="application/json")
 
-        api_response = self.client.post('/api/check_email_before_login',
+        api_response = self.client.post('/api/check_email',
                                         json.dumps(non_verified_user), format="json", content_type="application/json")
 
         self.assertEqual(api_response.status_code, status.HTTP_200_OK)
