@@ -3,7 +3,7 @@ name: Initial Pipeline
 agent:
   machine:
     type: e1-standard-2
-    os_image: ubuntu2004
+    os_image: ubuntu2204
 
 global_job_config:
   prologue:
@@ -29,8 +29,9 @@ blocks:
       prologue:
         commands:
           - sem-service start mysql 8.0
+          - sudo apt-get update
           # install mysql client
-          - sudo apt-get install -y -qq mysql-client
+          - sudo apt-get install -y -qq mysql-client-core-8.0
           - sem-service status mysql 8.0
           - mysql --host=0.0.0.0 -uroot -e "CREATE DATABASE IF NOT EXISTS time_tracker;"
           - checkout
