@@ -4,7 +4,6 @@ agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu2004
-
 global_job_config:
   prologue:
     commands:
@@ -24,13 +23,15 @@ blocks:
             - cache restore
             - pip install --cache-dir .pip_cache -r requirements.txt
             - cache store
+      env_vars:
+        - name: DJANGO_ALLOWED_HOSTS
+          value: 'localhost localhost:8000 127.0.0.1 0.0.0.0 [::1]'
   - name: Test
     task:
       prologue:
         commands:
           - sem-service start mysql 8.0
           - sudo apt-get update
-          # install mysql client
           - sudo apt-get install -y -qq mysql-client-core-8.0
           - sem-service status mysql 8.0
           - mysql --host=0.0.0.0 -uroot -e "CREATE DATABASE IF NOT EXISTS time_tracker;"
