@@ -86,11 +86,11 @@ WSGI_APPLICATION = 'timeTrackerApi.wsgi.application'
 
 DATABASES = {
     'default': {
-        "ENGINE": os.environ.get("DATABASE_ENGINE"),
-        "NAME": os.environ.get("DATABASE_NAME"),
-        "USER": os.environ.get("DATABASE_USER"),
+        "ENGINE": os.environ.get("DATABASE_ENGINE", "django.db.backends.mysql"),
+        "NAME": os.environ.get("DATABASE_NAME", "time_tracker"),
+        "USER": os.environ.get("DATABASE_USER", "root"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
-        "HOST": os.environ.get("DATABASE_HOST"),
+        "HOST": os.environ.get("DATABASE_HOST", "localhost"),
         "PORT": os.environ.get("DATABASE_PORT", "3306"),
     }
 }
